@@ -5,6 +5,9 @@
 #include <armadillo>
 #include <memory>
 
+const int HIDDEN_STATES = 2;
+const int VISIBLE_STATES = 2;
+
 void expandVertically(arma::mat* target, int targetRows) {
 
     target->resize(targetRows, target->n_cols);
@@ -77,7 +80,7 @@ std::shared_ptr<arma::umat> simulateVisibleData(arma::umat hiddenData, arma::mat
 
 arma::mat computeThetaHidden(arma::umat* hiddenData) {
 
-    arma::umat histogram = arma::hist(arma::conv_to<::arma::rowvec>::from(*hiddenData), 2);
+    arma::umat histogram = arma::hist(arma::conv_to<::arma::rowvec>::from(*hiddenData), HIDDEN_STATES);
     arma::mat thetaHidden = arma::conv_to<arma::mat>::from(histogram);
 
     thetaHidden /= accu(thetaHidden);
@@ -104,7 +107,7 @@ arma::mat computeThetaVisible(arma::umat* dataHidden, arma::umat* dataVisible) {
 
 std::shared_ptr<arma::mat> computeThetaVisibleForNode(const arma::umat& hiddenData, const arma::umat& visibleData) {
 
-    auto thetaVisible = std::make_shared<arma::mat>(2, 2, arma::fill::zeros);
+    auto thetaVisible = std::make_shared<arma::mat>(VISIBLE_STATES, HIDDEN_STATES, arma::fill::zeros);
 
     for (int i = 0; i < hiddenData.n_cols; ++i) {
         ++thetaVisible->at(visibleData(i), hiddenData(i));
@@ -147,13 +150,8 @@ arma::mat replaceAllValues(arma::umat* dataVisible, int thetaHidden, std::shared
     return replacedValues;
 }
 
-//arma::mat imputeHiddenNode(arma::umat* dataVisible, arma::mat thetaHidden, arma::mat thetaVisible, bool generateNewData) {
 arma::mat imputeHiddenNode(arma::umat* dataVisible, arma::mat thetaHidden, std::shared_ptr<std::vector<arma::mat>> thetaVisible, bool generateNewData) {
 
-    /*arma::mat prob1 = arma::trans(thetaVisible.col(1));
-    expandVertically(&prob1, dataVisible->n_rows);
-
-    arma::mat probVis1 = prob1 % *dataVisible + (1 - prob1) % (1 - *dataVisible);*/
     arma::mat probVis1 = replaceAllValues(dataVisible, 1, thetaVisible);
     arma::mat probVis1Unnorm = thetaHidden(1) * arma::prod(probVis1, 1);
 
@@ -161,10 +159,6 @@ arma::mat imputeHiddenNode(arma::umat* dataVisible, arma::mat thetaHidden, std::
 
     for (int i = 0; i < thetaHidden.n_cols; ++i) {
 
-        /*arma::mat asRow = arma::trans(thetaVisible.col(i));
-        expandVertically(&asRow, dataVisible->n_rows);
-
-        arma::mat probVis = asRow % *dataVisible + (1 - asRow) % (1 - *dataVisible);*/
         arma::mat probVis = replaceAllValues(dataVisible, i, thetaVisible);
         arma::mat probVisUnnorm = thetaHidden(i) * arma::prod(probVis, 1);
 
@@ -188,7 +182,6 @@ arma::mat learn(arma::umat dataHidden, arma::umat dataVisible, int learningItera
 
     arma::mat thetaHidden = computeThetaHidden(&dataHidden);
     std::shared_ptr<std::vector<arma::mat>> thetaVisible = computeThetaVisible(dataHidden, dataVisible);
-    //arma::mat thetaVisible = computeThetaVisible(&dataHidden, &dataVisible);
 
     for (int i = 0; i < learningIterations; ++i) {
 
@@ -199,7 +192,6 @@ arma::mat learn(arma::umat dataHidden, arma::umat dataVisible, int learningItera
         }*/
 
         thetaHidden = computeThetaHidden(&dataHidden);
-        //thetaVisible = computeThetaVisible(&dataHidden, &dataVisible);
         thetaVisible = computeThetaVisible(dataHidden, dataVisible);
 
     }

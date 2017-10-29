@@ -41,15 +41,6 @@ TEST_CASE("Entire use case", "[bayes") {
             {0.62, 0.66},
             {0.38, 0.34}
     };
-    /*arma::mat thetaVisible = {
-            {0.55, 0.95},
-            {0.60, 0.95},
-            {0.24, 0.42},
-            {0.13, 0.72},
-            {0.62, 0.66}
-    };*/
-
-    //std::vector<arma::mat> thetaVisible = {e0, e1, e2, e3, e4};
 
     arma::umat dataHidden = simulateHiddenData(thetaHidden, SAMPLES, &engine);
 
@@ -65,12 +56,6 @@ TEST_CASE("Entire use case", "[bayes") {
     dataVisible = arma::join_rows(dataVisible, *dataE4);
 
     std::shared_ptr<std::vector<arma::mat>> computedThetaVisible = computeThetaVisible(dataHidden, dataVisible);
-
-    //arma::umat dataVisible = simulateVisibleData(arma::trans(dataHidden), thetaVisible, SAMPLES);
-    //arma::umat dataVisible = simulateVisibleData(dataHidden, thetaVisible, &engine);
-
-    //arma::mat computedThetaHidden = computeThetaHidden(&dataHidden);
-    //arma::mat computedThetaVisible = computeThetaVisible(&dataHidden, &dataVisible);
 
     dataHidden.imbue([] () { return rand() % 2; });
 
