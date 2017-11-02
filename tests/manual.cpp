@@ -11,12 +11,38 @@
 TEST_CASE("Entire use case", "[bayes]") {
 
     const int SAMPLES = 10000;
-    const int LEARNING_ITERATIONS = 1;
+    const int LEARNING_ITERATIONS = 400;
 
     std::random_device r;
     std::mt19937 engine(r());
 
-    arma::mat thetaHidden = {0.15, 0.65, 0.20};
+    /*arma::mat thetaHidden = {0.25, 0.75};
+    arma::mat e0 = {
+            {0.55, 0.95},
+            {0.45, 0.05}
+    };
+
+    arma::mat e1 = {
+            {0.60, 0.95},
+            {0.40, 0.05}
+    };
+
+    arma::mat e2 = {
+            {0.24, 0.42},
+            {0.76, 0.58}
+    };
+
+    arma::mat e3 = {
+            {0.13, 0.72},
+            {0.87, 0.28}
+    };
+
+    arma::mat e4 = {
+            {0.62, 0.66},
+            {0.38, 0.34}
+    };*/
+
+    arma::mat thetaHidden = {0.30, 0.04, 0.66};
     arma::mat e0 = {
             {0.55, 0.95, 0.11},
             {0.45, 0.05, 0.89}

@@ -169,9 +169,6 @@ arma::mat imputeHiddenNode(arma::umat* dataVisible, arma::mat thetaHidden, std::
 
     };
 
-    std::random_device r;
-    std::mt19937 engine(r());
-
     hidden.each_col([&] (arma::colvec& col) {
         col /= denominator(0);
         col.transform([] (double val) {
@@ -180,16 +177,27 @@ arma::mat imputeHiddenNode(arma::umat* dataVisible, arma::mat thetaHidden, std::
     });
 
     if (generateNewData) {
-        //hidden = arma::conv_to<arma::mat>::from(simulateHiddenData(hidden, SAMPLES, &engine));
+
+        std::random_device r;
+        std::mt19937 engine(r());
+
         arma::mat hiddenData(1, hidden.n_rows);
         for (int i = 0; i < hidden.n_rows; ++i) {
             arma::rowvec row = hidden.row(i);
-            std::cout << row << std::endl;
             std::discrete_distribution<> dist(row.begin(), row.end());
             hiddenData(0, i) = dist(engine);
         }
 
         hidden = hiddenData;
+
+        /*arma::umat hiddenData;
+        hidden.each_col([&] (const arma::colvec& col) {
+            arma::umat data = col > arma::mat(hidden.n_rows, 1, arma::fill::randu);
+            hiddenData = arma::join_rows(hiddenData, data);
+        });
+
+        hidden = arma::conv_to<arma::mat>::from(hiddenData);
+        hidden = arma::mean(hidden);*/
     }
     /*arma::mat hidden = probVis1Unnorm / denominator;
 
@@ -211,6 +219,7 @@ arma::mat learn(arma::umat dataHidden, arma::umat dataVisible, int learningItera
     for (int i = 0; i < learningIterations; ++i) {
 
         dataHidden = arma::conv_to<arma::umat>::from(imputeHiddenNode(&dataVisible, thetaHidden, thetaVisible, true));
+        //thetaHidden = imputeHiddenNode(&dataVisible, thetaHidden, thetaVisible, true);
 
         /*if (computeThetaHidden(&dataHidden)(1) < 0.5) {
             dataHidden = 1 - dataHidden;
