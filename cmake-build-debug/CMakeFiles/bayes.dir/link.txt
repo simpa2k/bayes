@@ -1,1 +1,0 @@
-/usr/bin/c++  -g   CMakeFiles/bayes.dir/functions.cpp.o CMakeFiles/bayes.dir/tests/catch.cpp.o CMakeFiles/bayes.dir/tests/testReplaceAllValues.cpp.o CMakeFiles/bayes.dir/tests/manual.cpp.o CMakeFiles/bayes.dir/tests/testImputeHiddenNode.cpp.o  -o bayes /usr/lib/libarmadillo.so 

@@ -5,8 +5,9 @@
 #include <armadillo>
 #include <memory>
 
-const int HIDDEN_STATES = 2;
+const int HIDDEN_STATES = 3;
 const int VISIBLE_STATES = 2;
+const int SAMPLES = 10000;
 
 void expandVertically(arma::mat* target, int targetRows) {
 
@@ -114,7 +115,7 @@ std::shared_ptr<arma::mat> computeThetaVisibleForNode(const arma::umat& hiddenDa
     }
 
     thetaVisible->each_col([] (arma::colvec& col) {
-        int total = arma::accu(col);
+        double total = arma::accu(col);
         col /= total;
     });
 
@@ -154,25 +155,49 @@ arma::mat imputeHiddenNode(arma::umat* dataVisible, arma::mat thetaHidden, std::
 
     arma::mat probVis1 = replaceAllValues(dataVisible, 1, thetaVisible);
     arma::mat probVis1Unnorm = thetaHidden(1) * arma::prod(probVis1, 1);
-
+    
     arma::mat denominator(probVis1Unnorm.n_rows, probVis1Unnorm.n_cols, arma::fill::zeros);
+    arma::mat hidden;
 
     for (int i = 0; i < thetaHidden.n_cols; ++i) {
 
         arma::mat probVis = replaceAllValues(dataVisible, i, thetaVisible);
         arma::mat probVisUnnorm = thetaHidden(i) * arma::prod(probVis, 1);
 
+        hidden = arma::join_rows(hidden, probVisUnnorm);
         denominator += probVisUnnorm;
 
     };
 
-    arma::mat hidden = probVis1Unnorm / denominator;
+    std::random_device r;
+    std::mt19937 engine(r());
 
-    hidden.transform( [] (double val) { return (std::isnan(val) ? double(0) : val); });
+    hidden.each_col([&] (arma::colvec& col) {
+        col /= denominator(0);
+        col.transform([] (double val) {
+            return (std::isnan(val) ? double(0) : val);
+        });
+    });
 
     if (generateNewData) {
-        hidden = arma::conv_to<arma::mat>::from(arma::trans(hidden > arma::mat(hidden.n_rows, hidden.n_cols, arma::fill::randu)));
+        //hidden = arma::conv_to<arma::mat>::from(simulateHiddenData(hidden, SAMPLES, &engine));
+        arma::mat hiddenData(1, hidden.n_rows);
+        for (int i = 0; i < hidden.n_rows; ++i) {
+            arma::rowvec row = hidden.row(i);
+            std::cout << row << std::endl;
+            std::discrete_distribution<> dist(row.begin(), row.end());
+            hiddenData(0, i) = dist(engine);
+        }
+
+        hidden = hiddenData;
     }
+    /*arma::mat hidden = probVis1Unnorm / denominator;
+
+    hidden.transform( [] (double val) { return (std::isnan(val) ? double(0) : val); });
+    
+    if (generateNewData) {
+        hidden = arma::conv_to<arma::mat>::from(arma::trans(hidden > arma::mat(hidden.n_rows, hidden.n_cols, arma::fill::randu)));
+    }*/
 
     return hidden;
 
