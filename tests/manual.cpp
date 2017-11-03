@@ -86,6 +86,7 @@ TEST_CASE("Entire use case", "[bayes]") {
     std::uniform_int_distribution<> dist(0, 2);
     dataHidden.imbue([&] () { return dist(engine); });
 
+    setEngine(engine);
     arma::mat thetaLearned = learn(dataHidden, dataVisible, LEARNING_ITERATIONS);
     
     std::cout << thetaLearned << std::endl;

@@ -8,6 +8,10 @@
 #include <armadillo>
 #include <memory>
 
+using namespace std;
+using namespace arma;
+
+void setEngine(mt19937 &eng);
 void expandVertically(arma::mat* target, int targetRows);
 void expandHorizontally(arma::umat* target, int targetColumns);
 

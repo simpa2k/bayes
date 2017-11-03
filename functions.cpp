@@ -9,6 +9,16 @@ const int HIDDEN_STATES = 3;
 const int VISIBLE_STATES = 2;
 const int SAMPLES = 10000;
 
+using namespace std;
+using namespace arma;
+
+random_device r;
+mt19937 engine(r());
+
+void setEngine(mt19937 &eng) {
+    engine = eng;
+}
+
 void expandVertically(arma::mat* target, int targetRows) {
 
     target->resize(targetRows, target->n_cols);
@@ -25,7 +35,7 @@ void expandHorizontally(arma::umat* target, int targetColumns) {
 
     for (int i = 0; i < target->n_rows; ++i) {
 
-        double value = target->at(i, 0);
+        double value = (*target)(i, 0);
         target->row(i).fill(value);
 
     }
@@ -111,7 +121,7 @@ std::shared_ptr<arma::mat> computeThetaVisibleForNode(const arma::umat& hiddenDa
     auto thetaVisible = std::make_shared<arma::mat>(VISIBLE_STATES, HIDDEN_STATES, arma::fill::zeros);
 
     for (int i = 0; i < hiddenData.n_cols; ++i) {
-        ++thetaVisible->at(visibleData(i), hiddenData(i));
+        ++((*thetaVisible)(visibleData(i), hiddenData(i)));
     }
 
     thetaVisible->each_col([] (arma::colvec& col) {
