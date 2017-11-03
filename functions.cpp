@@ -53,28 +53,8 @@ arma::umat simulateHiddenData(arma::mat distribution, const int samples, std::mt
     return arma::conv_to<arma::umat>::from(hiddenData);
 }
 
-/*arma::umat simulateVisibleData(arma::umat dataHidden, arma::mat thetaVisible, const int samples) {
-
-    arma::mat colZero = arma::trans(thetaVisible.col(0));
-    arma::mat colOne = arma::trans(thetaVisible.col(1));
-
-    expandHorizontally(&dataHidden, colZero.n_cols);
-
-    expandVertically(&colZero, samples);
-    expandVertically(&colOne, samples);
-
-    arma::umat dataVisibleProbFalse = ( (1 - dataHidden) % colZero ) > arma::mat(samples, colZero.n_cols, arma::fill::randu);
-    arma::umat dataVisibleProbTrue = ( dataHidden % colOne ) > arma::mat(samples, colOne.n_cols, arma::fill::randu);
-
-    arma::umat dataVisible = dataVisibleProbFalse + dataVisibleProbTrue;
-
-    return dataVisible;
-
-}*/
-
 std::shared_ptr<arma::umat> simulateVisibleData(arma::umat hiddenData, arma::mat distribution, std::mt19937 *engine) {
 
-    //arma::umat visibleData(hiddenData);
     auto visibleData = std::make_shared<arma::umat>(hiddenData);
     
     visibleData->transform([&] (int val) {
@@ -200,25 +180,9 @@ arma::mat imputeHiddenNode(arma::umat* dataVisible, arma::mat thetaHidden, std::
 
         hidden = hiddenData;
 
-        /*arma::umat hiddenData;
-        hidden.each_col([&] (const arma::colvec& col) {
-            arma::umat data = col > arma::mat(hidden.n_rows, 1, arma::fill::randu);
-            hiddenData = arma::join_rows(hiddenData, data);
-        });
-
-        hidden = arma::conv_to<arma::mat>::from(hiddenData);
-        hidden = arma::mean(hidden);*/
     }
-    /*arma::mat hidden = probVis1Unnorm / denominator;
-
-    hidden.transform( [] (double val) { return (std::isnan(val) ? double(0) : val); });
-    
-    if (generateNewData) {
-        hidden = arma::conv_to<arma::mat>::from(arma::trans(hidden > arma::mat(hidden.n_rows, hidden.n_cols, arma::fill::randu)));
-    }*/
 
     return hidden;
-
 }
 
 arma::mat learn(arma::umat dataHidden, arma::umat dataVisible, int learningIterations) {
@@ -229,11 +193,6 @@ arma::mat learn(arma::umat dataHidden, arma::umat dataVisible, int learningItera
     for (int i = 0; i < learningIterations; ++i) {
 
         dataHidden = arma::conv_to<arma::umat>::from(imputeHiddenNode(&dataVisible, thetaHidden, thetaVisible, true));
-        //thetaHidden = imputeHiddenNode(&dataVisible, thetaHidden, thetaVisible, true);
-
-        /*if (computeThetaHidden(&dataHidden)(1) < 0.5) {
-            dataHidden = 1 - dataHidden;
-        }*/
 
         thetaHidden = computeThetaHidden(&dataHidden);
         thetaVisible = computeThetaVisible(dataHidden, dataVisible);
