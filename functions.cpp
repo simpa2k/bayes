@@ -26,41 +26,6 @@ void setEngine(mt19937 &eng) {
 }
 
 /**
- * Utility function for expanding a matrix vertically, copying the values in the zeroth row
- * into all new rows. This means it effectively only works for row vectors.
- *
- * @param target The matrix to be expanded.
- * @param targetRows The final amount of rows desired.
- */
-void expandVertically(mat& target, int targetRows) {
-
-    target.resize(targetRows, target.n_cols);
-
-    for (int i = 1; i < target.n_rows; ++i) {
-        target.row(i) = target.row(0);
-    }
-}
-
-/**
- * Utility function for expanding a matrix horizontally, copying the values in the zeroth column
- * into all new columns. This means it effectively only works for column vectors.
- *
- * @param target The matrix to be expanded.
- * @param targetColumns The final amount of columns desired.
- */
-void expandHorizontally(umat& target, int targetColumns) {
-
-    target.resize(target.n_rows, targetColumns);
-
-    for (int i = 0; i < target.n_rows; ++i) {
-
-        double value = (target)(i, 0);
-        target.row(i).fill(value);
-
-    }
-}
-
-/**
  * Utility function for simulating data for a hidden node with an arbitrary amount of states.
  *
  * @param distribution Expected to be a row vector where each column represents the probability of activation for the

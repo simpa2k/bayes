@@ -19,8 +19,6 @@ using namespace std;
 using namespace arma;
 
 void setEngine(mt19937 &eng);
-void expandVertically(arma::mat& target, int targetRows);
-void expandHorizontally(arma::umat& target, int targetColumns);
 
 shared_ptr<umat> simulateHiddenData(arma::mat& distribution, const int samples, std::mt19937& engine);
 std::shared_ptr<arma::umat> simulateVisibleData(const arma::umat& hiddenData, const arma::mat& distribution, std::mt19937& engine);
