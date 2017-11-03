@@ -32,12 +32,12 @@ void setEngine(mt19937 &eng) {
  * @param target The matrix to be expanded.
  * @param targetRows The final amount of rows desired.
  */
-void expandVertically(mat* target, int targetRows) {
+void expandVertically(mat& target, int targetRows) {
 
-    target->resize(targetRows, target->n_cols);
+    target.resize(targetRows, target.n_cols);
 
-    for (int i = 1; i < target->n_rows; ++i) {
-        target->row(i) = target->row(0);
+    for (int i = 1; i < target.n_rows; ++i) {
+        target.row(i) = target.row(0);
     }
 }
 
@@ -48,14 +48,14 @@ void expandVertically(mat* target, int targetRows) {
  * @param target The matrix to be expanded.
  * @param targetColumns The final amount of columns desired.
  */
-void expandHorizontally(umat* target, int targetColumns) {
+void expandHorizontally(umat& target, int targetColumns) {
 
-    target->resize(target->n_rows, targetColumns);
+    target.resize(target.n_rows, targetColumns);
 
-    for (int i = 0; i < target->n_rows; ++i) {
+    for (int i = 0; i < target.n_rows; ++i) {
 
-        double value = (*target)(i, 0);
-        target->row(i).fill(value);
+        double value = (target)(i, 0);
+        target.row(i).fill(value);
 
     }
 }
@@ -69,13 +69,13 @@ void expandHorizontally(umat* target, int targetColumns) {
  * @param engine
  * @return a row vector of values.
  */
-umat simulateHiddenData(mat distribution, const int samples, mt19937* engine) {
+umat simulateHiddenData(mat& distribution, const int samples, mt19937& engine) {
 
     discrete_distribution<> dist(distribution.begin(), distribution.end());
     rowvec hiddenData(samples);
 
     hiddenData.imbue([&] () {
-        return dist(*engine);
+        return dist(engine);
     });
 
     return conv_to<umat>::from(hiddenData);
@@ -90,7 +90,7 @@ umat simulateHiddenData(mat distribution, const int samples, mt19937* engine) {
  * @param engine
  * @return
  */
-shared_ptr<umat> simulateVisibleData(umat hiddenData, mat distribution, mt19937 *engine) {
+shared_ptr<umat> simulateVisibleData(const umat& hiddenData, const mat& distribution, mt19937& engine) {
 
     auto visibleData = make_shared<umat>(hiddenData);
     
@@ -99,7 +99,7 @@ shared_ptr<umat> simulateVisibleData(umat hiddenData, mat distribution, mt19937 
         colvec col = distribution.col(val);
         discrete_distribution<> dist(col.begin(), col.end());
 
-        return dist(*engine);
+        return dist(engine);
 
     });
 
@@ -113,9 +113,9 @@ shared_ptr<umat> simulateVisibleData(umat hiddenData, mat distribution, mt19937 
  * @return A row vector of probabilities where each column is the probability of activation for the state indicated
  * by its index.
  */
-mat computeThetaHidden(umat* hiddenData) {
+mat computeThetaHidden(const umat& hiddenData) {
 
-    umat histogram = hist(conv_to<::rowvec>::from(*hiddenData), HIDDEN_STATES);
+    umat histogram = hist(conv_to<::rowvec>::from(hiddenData), HIDDEN_STATES);
     mat thetaHidden = conv_to<mat>::from(histogram);
 
     thetaHidden /= accu(thetaHidden);
@@ -186,13 +186,13 @@ shared_ptr<vector<mat>> computeThetaVisible(umat& hiddenData, umat& visibleData)
  * index indicated by the value's column, at the row in this matrix indicated by the value itself
  * and at the column in this matrix indicated by the state of the hidden node.
  */
-mat replaceAllValues(umat* dataVisible, int thetaHidden, shared_ptr<vector<mat>> thetaVisible) {
+mat replaceAllValues(umat& dataVisible, int thetaHidden, vector<mat>& thetaVisible) {
 
-    mat replacedValues = conv_to<mat>::from(*dataVisible);
+    mat replacedValues = conv_to<mat>::from(dataVisible);
 
     for (int i = 0; i < replacedValues.n_cols; ++i) { // For each column.
         auto col = replacedValues.col(i); // Pick out the column.
-        mat node = thetaVisible->at(i); // Pick out the correct node, indicated by the column.
+        mat node = thetaVisible.at(i); // Pick out the correct node, indicated by the column.
 
         col.transform([&] (double val) {
             return node(val, thetaHidden); // Visible states are indicated by measurement value, hidden states by the state passed.
@@ -216,7 +216,7 @@ mat replaceAllValues(umat* dataVisible, int thetaHidden, shared_ptr<vector<mat>>
  * new data was generated the matrix is effectively a histogram of counts of whether or not that probability activated
  * a state.
  */
-mat imputeHiddenNode(umat* dataVisible, mat thetaHidden, shared_ptr<vector<mat>> thetaVisible, bool generateNewData) {
+mat imputeHiddenNode(umat& dataVisible, mat& thetaHidden, vector<mat>& thetaVisible, bool generateNewData) {
 
     mat hidden;
 
@@ -237,7 +237,7 @@ mat imputeHiddenNode(umat* dataVisible, mat thetaHidden, shared_ptr<vector<mat>>
     if (generateNewData) {
 
         mat hiddenData(1, hidden.n_rows);
-        for (int i = 0; i < hidden.n_rows; ++i) {
+        for (int i = 0; i < hidden.n_rows; ++i) { // Each row represents a data point.
 
             rowvec row = hidden.row(i);
             row = row / accu(row); // Since Baye's theorem gives p(Ai) which does not take the exact probabilities of all other A into account, normalize the values of Ai-n so that they become mutually exclusive.
@@ -262,9 +262,9 @@ mat imputeHiddenNode(umat* dataVisible, mat thetaHidden, shared_ptr<vector<mat>>
  * @param learningIterations The amount of times to apply the expectation maximization.
  * @return The estimated probabilities of the hidden node's states being active.
  */
-mat learn(umat dataHidden, umat dataVisible, int learningIterations) {
+mat learn(umat& dataHidden, umat& dataVisible, int learningIterations) {
 
-    mat thetaHidden = computeThetaHidden(&dataHidden); // Compute the probability of the hidden node taking all possible values.
+    mat thetaHidden = computeThetaHidden(dataHidden); // Compute the probability of the hidden node taking all possible values.
     shared_ptr<vector<mat>> thetaVisible = computeThetaVisible(dataHidden, dataVisible); // Compute the probability of each visible node taking all possible values, given each value that the hidden node can take.
 
     /*
@@ -272,9 +272,9 @@ mat learn(umat dataHidden, umat dataVisible, int learningIterations) {
      */
     for (int i = 0; i < learningIterations; ++i) {
 
-        dataHidden = conv_to<umat>::from(imputeHiddenNode(&dataVisible, thetaHidden, thetaVisible, true)); // Use Baye's theorem to get better data on the hidden node using the visible nodes.
+        dataHidden = conv_to<umat>::from(imputeHiddenNode(dataVisible, thetaHidden, *thetaVisible, true)); // Use Baye's theorem to get better data on the hidden node using the visible nodes.
 
-        thetaHidden = computeThetaHidden(&dataHidden); // Compute the probability of the hidden node with the improved data.
+        thetaHidden = computeThetaHidden(dataHidden); // Compute the probability of the hidden node with the improved data.
         thetaVisible = computeThetaVisible(dataHidden, dataVisible); // Compute the probability of each visible node using the improved data.
 
     }

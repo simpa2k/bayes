@@ -48,7 +48,7 @@ TEST_CASE("Replace all values of matrix", "[bayes]") {
     thetaVisible->push_back(e3);
     thetaVisible->push_back(e4);
 
-    arma::mat replacedValues = replaceAllValues(&dataVisible, 0, thetaVisible);
+    arma::mat replacedValues = replaceAllValues(dataVisible, 0, *thetaVisible);
     arma::mat correct = {
             {0.45, 0.60, 0.24, 0.87, 0.38},
             {0.55, 0.40, 0.76, 0.87, 0.62}

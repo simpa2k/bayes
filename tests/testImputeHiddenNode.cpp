@@ -48,6 +48,6 @@ TEST_CASE("Impute hidden node", "[bayes]") {
     thetaVisible->push_back(e3);
     thetaVisible->push_back(e4);
 
-    arma::mat result = imputeHiddenNode(&dataVisible, thetaHidden, thetaVisible, false);
+    arma::mat result = imputeHiddenNode(dataVisible, thetaHidden, *thetaVisible, false);
 }
 
