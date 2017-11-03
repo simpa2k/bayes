@@ -188,9 +188,6 @@ arma::mat imputeHiddenNode(arma::umat* dataVisible, arma::mat thetaHidden, std::
 
     if (generateNewData) {
 
-        std::random_device r;
-        std::mt19937 engine(r());
-
         arma::mat hiddenData(1, hidden.n_rows);
         for (int i = 0; i < hidden.n_rows; ++i) {
 

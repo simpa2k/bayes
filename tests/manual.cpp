@@ -10,8 +10,8 @@
 
 TEST_CASE("Entire use case", "[bayes]") {
 
-    const int SAMPLES = 10000;
-    const int LEARNING_ITERATIONS = 800;
+    const int SAMPLES = 20000;
+    const int LEARNING_ITERATIONS = 1000;
 
     std::random_device r;
     std::mt19937 engine(r());
@@ -68,6 +68,26 @@ TEST_CASE("Entire use case", "[bayes]") {
             {0.38, 0.34, 0.80}
     };
 
+    arma::mat e5 = {
+            {0.42, 0.43, 0.12},
+            {0.58, 0.57, 0.88}
+    };
+
+    arma::mat e6 = {
+            {0.42, 0.60, 0.25},
+            {0.48, 0.40, 0.75}
+    };
+
+    arma::mat e7 = {
+            {0.72, 0.76, 0.36},
+            {0.28, 0.24, 0.64}
+    };
+
+    arma::mat e8 = {
+            {0.62, 0.32, 0.30},
+            {0.38, 0.68, 0.70}
+    };
+
     arma::umat dataHidden = simulateHiddenData(thetaHidden, SAMPLES, &engine);
 
     std::shared_ptr<arma::umat> dataE0 = simulateVisibleData(dataHidden, e0, &engine);
@@ -75,12 +95,20 @@ TEST_CASE("Entire use case", "[bayes]") {
     std::shared_ptr<arma::umat> dataE2 = simulateVisibleData(dataHidden, e2, &engine);
     std::shared_ptr<arma::umat> dataE3 = simulateVisibleData(dataHidden, e3, &engine);
     std::shared_ptr<arma::umat> dataE4 = simulateVisibleData(dataHidden, e4, &engine);
-    
+    std::shared_ptr<arma::umat> dataE5 = simulateVisibleData(dataHidden, e5, &engine);
+    std::shared_ptr<arma::umat> dataE6 = simulateVisibleData(dataHidden, e6, &engine);
+    std::shared_ptr<arma::umat> dataE7 = simulateVisibleData(dataHidden, e7, &engine);
+    std::shared_ptr<arma::umat> dataE8 = simulateVisibleData(dataHidden, e8, &engine);
+
     arma::umat dataVisible = arma::join_rows(*dataE0, *dataE1);
     dataVisible = arma::join_rows(dataVisible, *dataE2);
     dataVisible = arma::join_rows(dataVisible, *dataE3);
     dataVisible = arma::join_rows(dataVisible, *dataE4);
-    
+    dataVisible = arma::join_rows(dataVisible, *dataE5);
+    dataVisible = arma::join_rows(dataVisible, *dataE6);
+    dataVisible = arma::join_rows(dataVisible, *dataE7);
+    dataVisible = arma::join_rows(dataVisible, *dataE8);
+
     std::shared_ptr<std::vector<arma::mat>> computedThetaVisible = computeThetaVisible(dataHidden, dataVisible);
 
     std::uniform_int_distribution<> dist(0, 2);
