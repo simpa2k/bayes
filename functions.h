@@ -1,5 +1,12 @@
 //
-// Created by simon on 2017-10-29.
+// Note that this code is partly a translation of a Python example presented in an excellent blog
+// post by Jace Kohlmeier at:
+// http://derandomized.com/post/20009997725/bayes-net-example-with-python-and-khanacademy
+//
+// Apart from the translation, this code expands on the example by providing functionality for using
+// an arbitrary amount of visible and hidden states.
+//
+// All credit goes to Jace Kohlmeier for the original algorithm.
 //
 
 #ifndef BAYES_MAIN_H_H
@@ -16,7 +23,6 @@ void expandVertically(arma::mat* target, int targetRows);
 void expandHorizontally(arma::umat* target, int targetColumns);
 
 arma::umat simulateHiddenData(arma::mat distribution, const int samples, std::mt19937* engine);
-//arma::umat simulateVisibleData(arma::umat dataHidden, arma::mat thetaVisible, const int samples);
 std::shared_ptr<arma::umat> simulateVisibleData(arma::umat hiddenData, arma::mat distribution, std::mt19937 *engine);
 
 arma::mat computeThetaHidden(arma::umat* hiddenData);
@@ -26,7 +32,6 @@ std::shared_ptr<std::vector<arma::mat>> computeThetaVisible(arma::umat& hiddenDa
 
 arma::mat replaceAllValues(arma::umat* dataVisible, int thetaHidden, std::shared_ptr<std::vector<arma::mat>> thetaVisible);
 
-//arma::mat imputeHiddenNode(arma::umat* dataVisible, arma::mat thetaHidden, arma::mat thetaVisible, bool generateNewData);
 arma::mat imputeHiddenNode(arma::umat* dataVisible, arma::mat thetaHidden, std::shared_ptr<std::vector<arma::mat>> thetaVisible, bool generateNewData);
 arma::mat learn(arma::umat dataHidden, arma::umat dataVisible, int learningIterations);
 

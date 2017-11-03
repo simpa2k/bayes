@@ -1,5 +1,12 @@
 //
-// Created by simon on 2017-10-28.
+// Note that this code is partly a translation of a Python example presented in an excellent blog
+// post by Jace Kohlmeier at:
+// http://derandomized.com/post/20009997725/bayes-net-example-with-python-and-khanacademy
+//
+// Apart from the translation, this code expands on the example by providing functionality for using
+// an arbitrary amount of visible and hidden states.
+//
+// All credit goes to Jace Kohlmeier for the original algorithm.
 //
 
 #include <armadillo>
@@ -10,7 +17,6 @@ using namespace arma;
 
 const int HIDDEN_STATES = 3;
 const int VISIBLE_STATES = 2;
-const int SAMPLES = 10000;
 
 random_device r;
 mt19937 engine(r());
