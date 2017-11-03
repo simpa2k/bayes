@@ -169,12 +169,12 @@ arma::mat imputeHiddenNode(arma::umat* dataVisible, arma::mat thetaHidden, std::
 
     };
 
-    hidden.each_col([&] (arma::colvec& col) {
+    /*hidden.each_col([&] (arma::colvec& col) {
         col /= denominator(0);
         col.transform([] (double val) {
             return (std::isnan(val) ? double(0) : val);
         });
-    });
+    });*/
 
     if (generateNewData) {
 
@@ -183,7 +183,10 @@ arma::mat imputeHiddenNode(arma::umat* dataVisible, arma::mat thetaHidden, std::
 
         arma::mat hiddenData(1, hidden.n_rows);
         for (int i = 0; i < hidden.n_rows; ++i) {
+
             arma::rowvec row = hidden.row(i);
+            row = row / accu(row); // Normalize
+
             std::discrete_distribution<> dist(row.begin(), row.end());
             hiddenData(0, i) = dist(engine);
         }

@@ -11,7 +11,7 @@
 TEST_CASE("Entire use case", "[bayes]") {
 
     const int SAMPLES = 10000;
-    const int LEARNING_ITERATIONS = 400;
+    const int LEARNING_ITERATIONS = 800;
 
     std::random_device r;
     std::mt19937 engine(r());
