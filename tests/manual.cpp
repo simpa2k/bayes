@@ -15,6 +15,9 @@
 
 #include "../functions.h"
 
+using namespace std;
+using namespace arma;
+
 TEST_CASE("Entire use case", "[bayes]") {
 
     const int SAMPLES = 20000;
@@ -69,17 +72,17 @@ TEST_CASE("Entire use case", "[bayes]") {
             {0.38, 0.68, 0.70}
     };
 
-    arma::umat dataHidden = simulateHiddenData(thetaHidden, SAMPLES, engine);
+    shared_ptr<umat> dataHidden = simulateHiddenData(thetaHidden, SAMPLES, engine);
 
-    std::shared_ptr<arma::umat> dataE0 = simulateVisibleData(dataHidden, e0, engine);
-    std::shared_ptr<arma::umat> dataE1 = simulateVisibleData(dataHidden, e1, engine);
-    std::shared_ptr<arma::umat> dataE2 = simulateVisibleData(dataHidden, e2, engine);
-    std::shared_ptr<arma::umat> dataE3 = simulateVisibleData(dataHidden, e3, engine);
-    std::shared_ptr<arma::umat> dataE4 = simulateVisibleData(dataHidden, e4, engine);
-    std::shared_ptr<arma::umat> dataE5 = simulateVisibleData(dataHidden, e5, engine);
-    std::shared_ptr<arma::umat> dataE6 = simulateVisibleData(dataHidden, e6, engine);
-    std::shared_ptr<arma::umat> dataE7 = simulateVisibleData(dataHidden, e7, engine);
-    std::shared_ptr<arma::umat> dataE8 = simulateVisibleData(dataHidden, e8, engine);
+    shared_ptr<umat> dataE0 = simulateVisibleData(*dataHidden, e0, engine);
+    shared_ptr<umat> dataE1 = simulateVisibleData(*dataHidden, e1, engine);
+    shared_ptr<umat> dataE2 = simulateVisibleData(*dataHidden, e2, engine);
+    shared_ptr<umat> dataE3 = simulateVisibleData(*dataHidden, e3, engine);
+    shared_ptr<umat> dataE4 = simulateVisibleData(*dataHidden, e4, engine);
+    shared_ptr<umat> dataE5 = simulateVisibleData(*dataHidden, e5, engine);
+    shared_ptr<umat> dataE6 = simulateVisibleData(*dataHidden, e6, engine);
+    shared_ptr<umat> dataE7 = simulateVisibleData(*dataHidden, e7, engine);
+    shared_ptr<umat> dataE8 = simulateVisibleData(*dataHidden, e8, engine);
 
     arma::umat dataVisible = arma::join_rows(*dataE0, *dataE1);
     dataVisible = arma::join_rows(dataVisible, *dataE2);
@@ -90,17 +93,17 @@ TEST_CASE("Entire use case", "[bayes]") {
     dataVisible = arma::join_rows(dataVisible, *dataE7);
     dataVisible = arma::join_rows(dataVisible, *dataE8);
 
-    std::shared_ptr<std::vector<arma::mat>> computedThetaVisible = computeThetaVisible(dataHidden, dataVisible);
+    std::shared_ptr<std::vector<arma::mat>> computedThetaVisible = computeThetaVisible(*dataHidden, dataVisible);
 
-    std::cout << "Before randomization: " << computeThetaHidden(dataHidden) << std::endl;
+    std::cout << "Before randomization: " << *computeThetaHidden(*dataHidden) << std::endl;
 
     std::uniform_int_distribution<> dist(0, 2);
-    dataHidden.imbue([&] () { return dist(engine); });
+    dataHidden->imbue([&] () { return dist(engine); });
 
-    std::cout << "After randomization: " << computeThetaHidden(dataHidden) << std::endl;
+    std::cout << "After randomization: " << *computeThetaHidden(*dataHidden) << std::endl;
 
     setEngine(engine);
-    arma::mat thetaLearned = learn(dataHidden, dataVisible, LEARNING_ITERATIONS);
+    shared_ptr<mat> thetaLearned = learn(*dataHidden, dataVisible, LEARNING_ITERATIONS);
     
-    std::cout << "After computation: " << thetaLearned << std::endl;
+    std::cout << "After computation: " << *thetaLearned << std::endl;
 }

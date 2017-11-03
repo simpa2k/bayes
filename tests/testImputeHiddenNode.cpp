@@ -7,6 +7,9 @@
 
 #include "../functions.h"
 
+using namespace std;
+using namespace arma;
+
 TEST_CASE("Impute hidden node", "[bayes]") {
 
     arma::umat dataVisible = {
@@ -48,6 +51,6 @@ TEST_CASE("Impute hidden node", "[bayes]") {
     thetaVisible->push_back(e3);
     thetaVisible->push_back(e4);
 
-    arma::mat result = imputeHiddenNode(dataVisible, thetaHidden, *thetaVisible, false);
+    shared_ptr<mat> result = imputeHiddenNode(dataVisible, thetaHidden, *thetaVisible, false);
 }
 
