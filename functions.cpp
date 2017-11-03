@@ -26,7 +26,7 @@ void setEngine(mt19937 &eng) {
 }
 
 /**
- * Utility function for expanding a matrix vertically, copying the values in the zerothrow
+ * Utility function for expanding a matrix vertically, copying the values in the zeroth row
  * into all new rows. This means it effectively only works for row vectors.
  *
  * @param target The matrix to be expanded.
@@ -39,7 +39,6 @@ void expandVertically(mat* target, int targetRows) {
     for (int i = 1; i < target->n_rows; ++i) {
         target->row(i) = target->row(0);
     }
-
 }
 
 /**
@@ -124,23 +123,6 @@ mat computeThetaHidden(umat* hiddenData) {
     return thetaHidden;
 }
 
-mat computeThetaVisible(umat* dataHidden, umat* dataVisible) {
-
-    mat thetaVisible = mat(dataVisible->n_cols, 2, fill::zeros);
-
-    for (int i = 0; i < dataVisible->n_cols; ++i) {
-
-        umat visibleCol = trans(dataVisible->col(i));
-
-        thetaVisible.at(i, 0) = accu(visibleCol % (1 - *dataHidden)) / (float) accu(1 - *dataHidden);
-        thetaVisible.at(i, 1) = accu(visibleCol % *dataHidden) / (float) accu(*dataHidden);
-
-    }
-    thetaVisible.transform( [] (double val) { return (isnan(val) ? double(0) : val); });
-
-    return thetaVisible;
-}
-
 /**
  * Calculate the probability of activation for a single node given the state of a hidden node,
  * represented as a column vector where each row represents a data point.
@@ -192,7 +174,7 @@ shared_ptr<vector<mat>> computeThetaVisible(umat& hiddenData, umat& visibleData)
 /**
  * Replace all values of a matrix with values from a vector matrices, where the replacement value is chosen from
  * a matrix indicated by the column of the value to be replaced. When the matrix is chosen, use the value to
- * be replaces as index into its row and the index of a hidden node as index into its column.
+ * be replaced as index into its row and the index of a hidden node as index into its column.
  *
  * Effectively replaces data points with their corresponding probabilities of activation, given the state of a
  * hidden node.
@@ -263,20 +245,18 @@ mat imputeHiddenNode(umat* dataVisible, mat thetaHidden, shared_ptr<vector<mat>>
             discrete_distribution<> dist(row.begin(), row.end()); // Create a distribution.
             hiddenData(0, i) = dist(engine); // Generate a data point
         }
-
         hidden = hiddenData; // Replace the hidden probabilities with the generated data.
 
     }
-
     return hidden;
 }
 
 /**
- * Function to to try and estimate a hidden nodes activation given data on a set of visible nodes affected by it.
- * Uses an expectation maximization to continuously try to improve guessing.
+ * Function to to try and estimate a hidden node's activation given data on a set of visible nodes affected by it.
+ * Uses expectation maximization to continuously try to improve guessing.
  *
  * @param dataHidden Data on a hidden node's activation. Expected to be a row vector with each column representing a
- * data point. May be randomized.
+ * data point. Given a perfect model, the data can be random.
  * @param dataVisible Data on the activation of a set of visible nodes. Expected to be a matrix where each column
  * represents a node and each row represents a data point.
  * @param learningIterations The amount of times to apply the expectation maximization.
