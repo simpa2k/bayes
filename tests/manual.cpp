@@ -42,7 +42,7 @@ TEST_CASE("Entire use case", "[bayes]") {
             {0.38, 0.34}
     };*/
 
-    arma::mat thetaHidden = {0.30, 0.04, 0.66};
+    arma::mat thetaHidden = {0.30, 0.25, 0.45};
     arma::mat e0 = {
             {0.55, 0.95, 0.11},
             {0.45, 0.05, 0.89}
@@ -111,11 +111,15 @@ TEST_CASE("Entire use case", "[bayes]") {
 
     std::shared_ptr<std::vector<arma::mat>> computedThetaVisible = computeThetaVisible(dataHidden, dataVisible);
 
+    std::cout << "Före slumpning: " << computeThetaHidden(&dataHidden) << std::endl;
+
     std::uniform_int_distribution<> dist(0, 2);
     dataHidden.imbue([&] () { return dist(engine); });
+
+    std::cout << "Efter slumpning: " << computeThetaHidden(&dataHidden) << std::endl;
 
     setEngine(engine);
     arma::mat thetaLearned = learn(dataHidden, dataVisible, LEARNING_ITERATIONS);
     
-    std::cout << thetaLearned << std::endl;
+    std::cout << "Efter beräkning: " << thetaLearned << std::endl;
 }
