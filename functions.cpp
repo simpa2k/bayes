@@ -16,7 +16,7 @@ using namespace std;
 using namespace arma;
 
 const int HIDDEN_STATES = 3;
-const int VISIBLE_STATES = 2;
+const int VISIBLE_STATES = 3;
 
 random_device r;
 mt19937 engine(r());
