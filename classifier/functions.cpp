@@ -1,4 +1,6 @@
 //
+// A naïve Bayes classifier that uses expectation maximization to generate data for unknown features.
+//
 // Note that this code is partly a translation of a Python example presented in an excellent blog
 // post by Jace Kohlmeier at:
 // http://derandomized.com/post/20009997725/bayes-net-example-with-python-and-khanacademy

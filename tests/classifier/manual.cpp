@@ -13,7 +13,7 @@
 #include "../catch.h"
 #include <armadillo>
 
-#include "../../functions.h"
+#include "../../classifier/functions.h"
 
 using namespace std;
 using namespace arma;
