@@ -37,53 +37,53 @@ TEST_CASE("Entire use case", "[bayes]") {
     std::random_device r;
     std::mt19937 engine(r());
 
-    arma::mat thetaHidden = {0.30, 0.25, 0.45};
-    arma::mat e0 = {
+    mat thetaHidden = {0.30, 0.25, 0.45};
+    mat v0 = {
             {0.15, 0.65, 0.13},
             {0.50, 0.15, 0.57}
     };
 
-    arma::mat e1 = {
+    mat v1 = {
             {0.50, 0.75, 0.40},
             {0.40, 0.05, 0.35},
             {0.10, 0.20, 0.25}
     };
 
-    arma::mat e2 = {
+    mat v2 = {
             {0.24, 0.42, 0.34},
             {0.66, 0.38, 0.56},
             {0.10, 0.20, 0.10}
     };
 
-    arma::mat e3 = {
+    mat v3 = {
             {0.13, 0.52, 0.85},
             {0.67, 0.28, 0.05},
             {0.20, 0.20, 0.10}
     };
 
-    arma::mat e4 = {
+    mat v4 = {
             {0.42, 0.56, 0.20},
             {0.38, 0.34, 0.70}
     };
 
-    arma::mat e5 = {
+    mat v5 = {
             {0.42, 0.43, 0.12},
             {0.28, 0.47, 0.78},
     };
 
-    arma::mat e6 = {
+    mat v6 = {
             {0.42, 0.60, 0.25},
             {0.48, 0.30, 0.55},
             {0.10, 0.10, 0.20}
     };
 
-    arma::mat e7 = {
+    mat v7 = {
             {0.52, 0.56, 0.36},
             {0.28, 0.24, 0.44},
             {0.20, 0.10, 0.20}
     };
 
-    arma::mat e8 = {
+    mat v8 = {
             {0.42, 0.32, 0.30},
             {0.38, 0.58, 0.50},
     };
@@ -96,7 +96,7 @@ TEST_CASE("Entire use case", "[bayes]") {
     /*
      * Generate data for the visible nodes based on the hidden data.
      */
-    vector<mat> thetaVisible = {e0, e1, e2, e3, e4, e5, e6, e7, e8};
+    vector<mat> thetaVisible = {v0, v1, v2, v3, v4, v5, v6, v7, v8};
     shared_ptr<umat> visibleData = gatherVisibleData(*hiddenData, thetaVisible, engine);
 
     std::cout << "Before randomization: " << *computeThetaHidden(*hiddenData) << std::endl;
