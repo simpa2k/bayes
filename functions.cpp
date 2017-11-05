@@ -15,9 +15,6 @@
 using namespace std;
 using namespace arma;
 
-const int HIDDEN_STATES = 3;
-const int VISIBLE_STATES = 3;
-
 random_device r;
 mt19937 engine(r());
 
@@ -80,7 +77,7 @@ shared_ptr<umat> simulateVisibleData(const umat& hiddenData, const mat& distribu
  */
 shared_ptr<mat> computeThetaHidden(const umat& hiddenData) {
 
-    umat histogram = hist(conv_to<::rowvec>::from(hiddenData), HIDDEN_STATES);
+    umat histogram = hist(conv_to<::rowvec>::from(hiddenData), hiddenData.max() + 1);
     auto thetaHidden = make_shared<mat>(conv_to<mat>::from(histogram));
 
     *thetaHidden /= accu(*thetaHidden);
@@ -96,9 +93,9 @@ shared_ptr<mat> computeThetaHidden(const umat& hiddenData) {
  * @param visibleData A column vector where each row represents a data point.
  * @return
  */
-shared_ptr<mat> computeThetaVisibleForNode(const umat& hiddenData, const umat& visibleData) {
+shared_ptr<mat> computeThetaVisibleForNode(const umat& hiddenData, int hiddenStates, const umat& visibleData) {
 
-    auto thetaVisible = make_shared<mat>(VISIBLE_STATES, HIDDEN_STATES, fill::zeros);
+    auto thetaVisible = make_shared<mat>(visibleData.max() + 1, hiddenStates, fill::zeros);
 
     for (int i = 0; i < hiddenData.n_cols; ++i) {
         ++((*thetaVisible)(visibleData(i), hiddenData(i)));
@@ -127,9 +124,11 @@ shared_ptr<vector<mat>> computeThetaVisible(umat& hiddenData, umat& visibleData)
 
     auto thetaVisible = make_shared<vector<mat>>();
     mat convertedVisibleData = conv_to<mat>::from(visibleData);
+
+    int hiddenStates = hiddenData.max() + 1;
     
     convertedVisibleData.each_col([&] (colvec& col) {
-        shared_ptr<mat> nodeTheta = computeThetaVisibleForNode(hiddenData, conv_to<umat>::from(col));
+        shared_ptr<mat> nodeTheta = computeThetaVisibleForNode(hiddenData, hiddenStates, conv_to<umat>::from(col));
         thetaVisible->push_back(*nodeTheta);
     });
 

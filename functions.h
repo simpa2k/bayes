@@ -25,7 +25,7 @@ std::shared_ptr<arma::umat> simulateVisibleData(const arma::umat& hiddenData, co
 
 shared_ptr<mat> computeThetaHidden(const arma::umat& hiddenData);
 arma::mat computeThetaVisible(const arma::umat& dataHidden, const arma::umat& dataVisible);
-shared_ptr<mat> computeThetaVisibleForNode(const arma::umat& hiddenData, const arma::umat& visibleData);
+shared_ptr<mat> computeThetaVisibleForNode(const arma::umat& hiddenData, int hiddenStates, const arma::umat& visibleData);
 shared_ptr<vector<arma::mat>> computeThetaVisible(arma::umat& hiddenData, arma::umat& visibleData);
 
 shared_ptr<mat> replaceAllValues(arma::umat& dataVisible, int thetaHidden, vector<mat>& thetaVisible);

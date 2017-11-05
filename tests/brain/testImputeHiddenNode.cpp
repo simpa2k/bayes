@@ -2,15 +2,15 @@
 // Created by simon on 2017-10-29.
 //
 
-#include "catch.h"
+#include "../catch.h"
 #include <armadillo>
 
-#include "../functions.h"
+#include "../../functions.h"
 
 using namespace std;
 using namespace arma;
 
-TEST_CASE("Replace all values of matrix", "[bayes]") {
+TEST_CASE("Impute hidden node", "[bayes]") {
 
     arma::umat dataVisible = {
             {1, 0, 0, 1, 1},
@@ -51,15 +51,6 @@ TEST_CASE("Replace all values of matrix", "[bayes]") {
     thetaVisible->push_back(e3);
     thetaVisible->push_back(e4);
 
-    shared_ptr<mat> replacedValues = replaceAllValues(dataVisible, 0, *thetaVisible);
-    arma::mat correct = {
-            {0.45, 0.60, 0.24, 0.87, 0.38},
-            {0.55, 0.40, 0.76, 0.87, 0.62}
-    };
-
-    arma::umat evaluated = *replacedValues == correct;
-    evaluated.for_each([] (arma::uword& val) {
-        REQUIRE(val == 1);
-    });
+    shared_ptr<mat> result = imputeHiddenNode(dataVisible, thetaHidden, *thetaVisible, false);
 }
 
