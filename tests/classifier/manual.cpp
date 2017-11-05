@@ -14,6 +14,7 @@
 #include <armadillo>
 
 #include "../../classifier/functions.h"
+#include "../../classifier/Classifier.h"
 
 using namespace std;
 using namespace arma;
@@ -35,7 +36,9 @@ TEST_CASE("Entire use case", "[bayes]") {
     const int LEARNING_ITERATIONS = 1000;
 
     std::random_device r;
-    std::mt19937 engine(r());
+    auto engine = make_shared<mt19937>(r());
+
+    Classifier classifier(engine);
 
     mat thetaHidden = {0.30, 0.25, 0.45};
     mat v0 = {
@@ -88,18 +91,18 @@ TEST_CASE("Entire use case", "[bayes]") {
             {0.38, 0.58, 0.50},
     };
 
-    setEngine(engine);
+    setEngine(*engine);
 
     /*
      * Generate data for the hidden node.
      */
-    shared_ptr<umat> hiddenData = simulateHiddenData(thetaHidden, SAMPLES, engine);
+    shared_ptr<umat> hiddenData = simulateHiddenData(thetaHidden, SAMPLES, *engine);
 
     /*
      * Generate data for the visible nodes based on the hidden data.
      */
     vector<mat> thetaVisible = {v0, v1, v2, v3, v4, v5, v6, v7, v8};
-    shared_ptr<umat> visibleData = gatherVisibleData(*hiddenData, thetaVisible, engine);
+    shared_ptr<umat> visibleData = gatherVisibleData(*hiddenData, thetaVisible, *engine);
 
     std::cout << "Before randomization: " << *computeThetaHidden(*hiddenData) << std::endl;
 
@@ -109,15 +112,15 @@ TEST_CASE("Entire use case", "[bayes]") {
          * Obscure hidden node.
          */
         std::uniform_int_distribution<> dist(0, 2);
-        hiddenData->imbue([&] () { return dist(engine); });
+        hiddenData->imbue([&] () { return dist(*engine); });
 
         std::cout << "After randomization: " << *computeThetaHidden(*hiddenData) << std::endl;
 
         /*
          * Re-learn hidden distribution.
          */
-        /*shared_ptr<mat> thetaLearned = learn(*hiddenData, *visibleData, LEARNING_ITERATIONS);
-        std::cout << "After computation: " << *thetaLearned << std::endl;*/
+        shared_ptr<mat> thetaLearned = classifier.learn(*hiddenData, *visibleData, LEARNING_ITERATIONS);
+        std::cout << "After computation: " << *thetaLearned << std::endl;
     }
 
     SECTION("Known hidden data") {
@@ -136,14 +139,17 @@ TEST_CASE("Entire use case", "[bayes]") {
         /*
          * Learn hidden distribution.
          */
-        shared_ptr<mat> thetaLearned = learn(hiddenTrainingSet, visibleTrainingSet, 1);
+        shared_ptr<mat> thetaLearned = classifier.learn(hiddenTrainingSet, visibleTrainingSet, 1);
         std::cout << "After computation: " << *thetaLearned << std::endl;
 
         /*
          * Evaluate
          */
         shared_ptr<vector<mat>> thetaVisible = computeThetaVisible(hiddenTrainingSet, visibleTrainingSet);
-        shared_ptr<mat> thetaGuessed = imputeHiddenNode(visibleEvaluationSet, *thetaLearned, *thetaVisible, false);
+        shared_ptr<mat> thetaGuessed = classifier.imputeHiddenNode(visibleEvaluationSet,
+                                                                   *thetaLearned,
+                                                                   *thetaVisible,
+                                                                   false);
 
         int correctGuesses = 0;
 
@@ -169,6 +175,6 @@ TEST_CASE("Entire use case", "[bayes]") {
         }
 
         double correctnessPercentage = (double(correctGuesses) / evaluationSetSize) * 100;
-        std::cout << "Made correct guess " << correctnessPercentage << "% of the time." << std::endl;
+        std::cout << "Guessed correctly " << correctnessPercentage << "% of the time." << std::endl;
     }
 }
