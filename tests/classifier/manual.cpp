@@ -88,6 +88,8 @@ TEST_CASE("Entire use case", "[bayes]") {
             {0.38, 0.58, 0.50},
     };
 
+    setEngine(engine);
+
     /*
      * Generate data for the hidden node.
      */
@@ -101,19 +103,72 @@ TEST_CASE("Entire use case", "[bayes]") {
 
     std::cout << "Before randomization: " << *computeThetaHidden(*hiddenData) << std::endl;
 
-    /*
-     * Obscure hidden node.
-     */
-    std::uniform_int_distribution<> dist(0, 2);
-    hiddenData->imbue([&] () { return dist(engine); });
+    SECTION("Unknown hidden data") {
 
-    std::cout << "After randomization: " << *computeThetaHidden(*hiddenData) << std::endl;
+        /*
+         * Obscure hidden node.
+         */
+        std::uniform_int_distribution<> dist(0, 2);
+        hiddenData->imbue([&] () { return dist(engine); });
 
-    /*
-     * Re-learn hidden distribution.
-     */
-    setEngine(engine);
-    shared_ptr<mat> thetaLearned = learn(*hiddenData, *visibleData, LEARNING_ITERATIONS);
-    
-    std::cout << "After computation: " << *thetaLearned << std::endl;
+        std::cout << "After randomization: " << *computeThetaHidden(*hiddenData) << std::endl;
+
+        /*
+         * Re-learn hidden distribution.
+         */
+        /*shared_ptr<mat> thetaLearned = learn(*hiddenData, *visibleData, LEARNING_ITERATIONS);
+        std::cout << "After computation: " << *thetaLearned << std::endl;*/
+    }
+
+    SECTION("Known hidden data") {
+
+        /*
+         * Set size of training and evaluation datasets.
+         */
+        uword trainingSetSize = SAMPLES * 0.9;
+        umat hiddenTrainingSet = hiddenData->head_cols(trainingSetSize);
+        umat visibleTrainingSet = visibleData ->head_rows(trainingSetSize);
+
+        uword evaluationSetSize = SAMPLES - trainingSetSize;
+        umat hiddenEvaluationSet = hiddenData->tail_cols(evaluationSetSize);
+        umat visibleEvaluationSet = visibleData->tail_rows(evaluationSetSize);
+
+        /*
+         * Learn hidden distribution.
+         */
+        shared_ptr<mat> thetaLearned = learn(hiddenTrainingSet, visibleTrainingSet, 1);
+        std::cout << "After computation: " << *thetaLearned << std::endl;
+
+        /*
+         * Evaluate
+         */
+        shared_ptr<vector<mat>> thetaVisible = computeThetaVisible(hiddenTrainingSet, visibleTrainingSet);
+        shared_ptr<mat> thetaGuessed = imputeHiddenNode(visibleEvaluationSet, *thetaLearned, *thetaVisible, false);
+
+        int correctGuesses = 0;
+
+        for (int i = 0; i < thetaGuessed->n_rows; ++i) {
+
+            rowvec row = thetaGuessed->row(i);
+
+            row = row / accu(row); // Normalize
+            int maxIndex = 0;
+
+            /*
+             * Pick out most likely classification.
+             */
+            for (int j = 0; j < row.n_cols; ++j) {
+                if (row.col(j)(0) > row.col(maxIndex)(0)) {
+                    maxIndex = j;
+                }
+            }
+
+            if (maxIndex == hiddenEvaluationSet.col(i)(0)) {
+                ++correctGuesses;
+            }
+        }
+
+        double correctnessPercentage = (double(correctGuesses) / evaluationSetSize) * 100;
+        std::cout << "Made correct guess " << correctnessPercentage << "% of the time." << std::endl;
+    }
 }
