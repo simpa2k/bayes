@@ -18,14 +18,19 @@ using namespace arma;
 class BayesianNetwork {
 
     Classifier classifier;
-    Graph<string, umat> graph;
+    Graph<string, mat> graph;
+    unordered_map<string, shared_ptr<umat>> dataByNode;
 
 public:
 
     explicit BayesianNetwork(shared_ptr<mt19937> engine);
 
-    bool add(string nodeIdentifier);
-    bool record(string nodeIdentifier, umat data);
+    bool add(const string& nodeIdentifier);
+    bool record(const string& nodeIdentifier, const umat& data);
+    umat get(const string& nodeIdentifier);
+    bool connect(const string& visibleIdentifier, const string& hiddenIdentifier);
+    vector<string> getModel();
+    shared_ptr<mat> imputeHiddenNode();
 
 };
 

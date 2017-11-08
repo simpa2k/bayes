@@ -10,6 +10,7 @@
 #include <queue>
 #include <algorithm>
 #include <memory>
+#include <unordered_map>
 
 using namespace std;
 
@@ -40,7 +41,7 @@ struct node {
 template <class T, class W>
 class Graph {
 
-    map<T, node<T, W>> nodes;
+    unordered_map<T, node<T, W>> nodes;
     bool areConnected(const node<T, W>& first, const node<T, W>& second);
     typename vector<edge<T, W>>::iterator getConnection(const node<T, W>& first, const node<T, W>& second);
 
@@ -58,7 +59,7 @@ public:
 template <typename T, typename W>
 bool Graph<T, W>::add(T data) {
 
-    typename map<T, node<T, W>>::iterator existing = nodes.find(data);
+    typename unordered_map<T, node<T, W>>::iterator existing = nodes.find(data);
 
     if (existing != nodes.end()) {
         return false;
@@ -76,8 +77,8 @@ bool Graph<T, W>::add(T data) {
 template <typename T, typename W>
 bool Graph<T, W>::connect(T node1, T node2, W weight) {
 
-    typename map<T, node<T, W>>::iterator existing1 = nodes.find(node1);
-    typename map<T, node<T, W>>::iterator existing2 = nodes.find(node2);
+    typename unordered_map<T, node<T, W>>::iterator existing1 = nodes.find(node1);
+    typename unordered_map<T, node<T, W>>::iterator existing2 = nodes.find(node2);
 
     if (existing1 == nodes.end() || existing2 == nodes.end()) {
         return false;
@@ -105,7 +106,7 @@ bool Graph<T, W>::connect(T node1, T node2, W weight) {
     connection->weight = weight;
 
     existing1->second.edges.push_back(*connection);
-    existing2->second.indegree++;
+    existing2->second.indegree++; // ToDo: can this handle more than two levels?
 
     return true;
 }
@@ -174,8 +175,8 @@ W* Graph<T, W>::getWeight(const T& node1, const T& node2) {
 
     W* weight = NULL;
 
-    typename map<T, node<T, W>>::iterator existing1 = nodes.find(node1);
-    typename map<T, node<T, W>>::iterator existing2 = nodes.find(node2);
+    typename unordered_map<T, node<T, W>>::iterator existing1 = nodes.find(node1);
+    typename unordered_map<T, node<T, W>>::iterator existing2 = nodes.find(node2);
 
     if (existing1 == nodes.end() || existing2 == nodes.end() || !areConnected(existing1->second, existing2->second)) {
         return NULL;
@@ -200,8 +201,8 @@ W* Graph<T, W>::getWeight(const T& node1, const T& node2) {
 template<typename T, typename W>
 void Graph<T, W>::getWeight(const T& node1, const T& node2, const W& target) {
 
-    typename map<T, node<T, W>>::iterator existing1 = nodes.find(node1);
-    typename map<T, node<T, W>>::iterator existing2 = nodes.find(node2);
+    typename unordered_map<T, node<T, W>>::iterator existing1 = nodes.find(node1);
+    typename unordered_map<T, node<T, W>>::iterator existing2 = nodes.find(node2);
 
     if (existing1 == nodes.end() || existing2 == nodes.end() || !areConnected(existing1->second, existing2->second)) {
         return;
@@ -215,7 +216,7 @@ void Graph<T, W>::getWeight(const T& node1, const T& node2, const W& target) {
 template<typename T, typename W>
 map<T, W> Graph<T, W>::getWeights(const T& nodeKey) {
 
-    typename map<T, node<T, W>>::iterator existing = nodes.find(nodeKey);
+    typename unordered_map<T, node<T, W>>::iterator existing = nodes.find(nodeKey);
 
     map<T, W> weights;
 

@@ -15,20 +15,10 @@
 
 #include "../../classifier/functions.h"
 #include "../../classifier/Classifier.h"
+#include "../utils/utils.h"
 
 using namespace std;
 using namespace arma;
-
-shared_ptr<umat> gatherVisibleData(umat& hiddenData, vector<mat>& thetaVisible, mt19937& engine) {
-
-    umat visibleData;
-    for (auto &&node : thetaVisible) {
-        umat nodeData = *simulateVisibleData(hiddenData, node, engine);
-        visibleData = join_rows(visibleData, nodeData);
-    }
-
-    return make_shared<umat>(visibleData);
-}
 
 TEST_CASE("Entire use case", "[bayes]") {
 

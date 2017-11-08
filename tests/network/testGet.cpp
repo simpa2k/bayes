@@ -4,6 +4,7 @@
 
 #include "../catch.h"
 #include "../../network/BayesianNetwork.h"
+#include "../utils/utils.h"
 
 TEST_CASE("Test get data", "[bayes]") {
 
@@ -16,6 +17,10 @@ TEST_CASE("Test get data", "[bayes]") {
 
     umat data = {1, 0, 1, 1};
     bayesianNetwork.record("v1", data);
+
+    umat retrieved = bayesianNetwork.get("v1");
+
+    compareMatrices(data, retrieved);
 
 }
 
